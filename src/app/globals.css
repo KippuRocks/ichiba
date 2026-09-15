@@ -150,3 +150,62 @@ main {
 .inventory-price {
   font-variant-numeric: tabular-nums;
 }
+
+.inventory-standing {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.checkout-summary {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.25rem 1rem;
+}
+
+.checkout-summary dt {
+  font-weight: 600;
+}
+
+.checkout-summary dd {
+  margin: 0;
+}
+
+.checkout-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-block: 1rem;
+}
+
+.checkout-refused,
+.checkout-notice {
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.pairing-code {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  font-variant-numeric: tabular-nums;
+}
+
+.handoff-qr img {
+  image-rendering: pixelated;
+}
+
+/* A phone shows the link first; a computer, the QR code. */
+@media (hover: none) and (pointer: coarse) {
+  .handoff-qr {
+    display: none;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .handoff-link {
+    opacity: 0.8;
+  }
+}

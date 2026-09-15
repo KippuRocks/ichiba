@@ -13,7 +13,8 @@ export async function seedGala(
   {
     onSale = true,
     saleAsset = true,
-  }: { readonly onSale?: boolean; readonly saleAsset?: boolean } = {},
+    capacity = 500,
+  }: { readonly onSale?: boolean; readonly saleAsset?: boolean; readonly capacity?: number } = {},
 ): Promise<SeededEvent> {
   const context = await browser.newContext();
   try {
@@ -25,7 +26,7 @@ export async function seedGala(
         { name: "Stalls", kind: "Seated", seats: ["A-1", "A-2", "A-3", "A-4"] },
         { name: "Standing", kind: "Unseated" },
       ],
-      capacity: 500,
+      capacity,
       ...(onSale ? { purchasedClass: { name: "General", price: 4_500_000 } } : {}),
       ...(saleAsset ? { saleAsset: "COPM/2" as const } : {}),
       grantedClass: "Press",

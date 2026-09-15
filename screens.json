@@ -16,6 +16,7 @@
       "route": "/events/:event",
       "title": "Event",
       "navigatesTo": [
+        "checkout.handoff",
         "event.seats",
         "home"
       ]
@@ -25,7 +26,108 @@
       "route": "/events/:event/zones/:zone/seats",
       "title": "Choose a seat",
       "navigatesTo": [
+        "checkout.handoff",
         "event.detail",
+        "home"
+      ]
+    },
+    {
+      "screenId": "checkout.handoff",
+      "route": "/checkout",
+      "title": "Checkout: continue in Saifu",
+      "navigatesTo": [
+        "checkout.none",
+        "checkout.pairing",
+        "event.detail",
+        "home",
+        "saifu:checkout.link"
+      ]
+    },
+    {
+      "screenId": "checkout.pairing",
+      "route": "/checkout",
+      "title": "Checkout: check the code",
+      "navigatesTo": [
+        "checkout.handoff",
+        "checkout.pay",
+        "checkout.refused",
+        "home"
+      ]
+    },
+    {
+      "screenId": "checkout.hold",
+      "route": "/checkout",
+      "title": "Checkout: hold your ticket",
+      "navigatesTo": [
+        "checkout.pay",
+        "checkout.refused",
+        "home"
+      ]
+    },
+    {
+      "screenId": "checkout.refused",
+      "route": "/checkout",
+      "title": "Checkout: not available",
+      "navigatesTo": [
+        "checkout.hold",
+        "event.detail",
+        "event.seats",
+        "home"
+      ]
+    },
+    {
+      "screenId": "checkout.pay",
+      "route": "/checkout",
+      "title": "Checkout: pay",
+      "navigatesTo": [
+        "checkout.ended",
+        "checkout.processing",
+        "checkout.refund",
+        "home"
+      ]
+    },
+    {
+      "screenId": "checkout.processing",
+      "route": "/checkout",
+      "title": "Checkout: issuing your ticket",
+      "navigatesTo": [
+        "checkout.done",
+        "checkout.ended",
+        "checkout.pay",
+        "checkout.refund",
+        "home"
+      ]
+    },
+    {
+      "screenId": "checkout.done",
+      "route": "/checkout",
+      "title": "Checkout: your ticket is in Saifu",
+      "navigatesTo": [
+        "home"
+      ]
+    },
+    {
+      "screenId": "checkout.refund",
+      "route": "/checkout",
+      "title": "Checkout: refund owed",
+      "navigatesTo": [
+        "home"
+      ]
+    },
+    {
+      "screenId": "checkout.ended",
+      "route": "/checkout",
+      "title": "Checkout: ended",
+      "navigatesTo": [
+        "event.detail",
+        "home"
+      ]
+    },
+    {
+      "screenId": "checkout.none",
+      "route": "/checkout",
+      "title": "Checkout: none in progress",
+      "navigatesTo": [
         "home"
       ]
     },

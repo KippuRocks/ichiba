@@ -42,6 +42,24 @@ export const SCREENS = {
     route: "/events/:event/zones/:zone/seats",
     chrome: "site",
   },
+  "checkout.handoff": { title: "Checkout: continue in Saifu", route: "/checkout", chrome: "site" },
+  "checkout.pairing": { title: "Checkout: check the code", route: "/checkout", chrome: "site" },
+  "checkout.hold": { title: "Checkout: hold your ticket", route: "/checkout", chrome: "site" },
+  "checkout.refused": { title: "Checkout: not available", route: "/checkout", chrome: "site" },
+  "checkout.pay": { title: "Checkout: pay", route: "/checkout", chrome: "site" },
+  "checkout.processing": {
+    title: "Checkout: issuing your ticket",
+    route: "/checkout",
+    chrome: "site",
+  },
+  "checkout.done": {
+    title: "Checkout: your ticket is in Saifu",
+    route: "/checkout",
+    chrome: "site",
+  },
+  "checkout.refund": { title: "Checkout: refund owed", route: "/checkout", chrome: "site" },
+  "checkout.ended": { title: "Checkout: ended", route: "/checkout", chrome: "site" },
+  "checkout.none": { title: "Checkout: none in progress", route: "/checkout", chrome: "site" },
   "system.not-found": { title: "Page not found", route: null, chrome: "site" },
 } as const satisfies Readonly<Record<string, ScreenDefinition>>;
 

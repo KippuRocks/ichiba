@@ -14,6 +14,11 @@
 //   transition("checkout.account", "saifu:checkout.link")   a change of screen the router
 //                                                           does not make, or a handoff to
 //                                                           another app's screen
+//   <AppLink from="checkout.handoff" to="saifu:checkout.link" href={…}>
+//                                                           a link another app opens
+//
+// `leave("checkout.pay", url)` sends the buyer to a page no Kippu app renders, such as the
+// payment provider's; it names its screen literally and records no edge.
 //
 // `from` may be a chrome, written `chrome:<id>`: its edges belong to every screen shown
 // inside that chrome. Anything else that navigates — an `<a href>`, next/link's `<Link>`,
@@ -135,14 +140,14 @@ export function extractFile(file: string, content: string): Omit<Extracted, "pag
         } else {
           rendered.push({ id, file, line });
         }
-      } else if (name === "ScreenLink") {
+      } else if (name === "ScreenLink" || name === "AppLink") {
         const from = stringLiteral(attribute(node, "from")?.value);
         const to = stringLiteral(attribute(node, "to")?.value);
         if (from === null || to === null) {
           problems.push({
             file,
             line,
-            message: "ScreenLink must name `from` and `to` as string literals",
+            message: `${name} must name \`from\` and \`to\` as string literals`,
           });
         } else {
           edges.push({ from, to, file, line });
@@ -174,6 +179,11 @@ export function extractFile(file: string, content: string): Omit<Extracted, "pag
           });
         } else {
           edges.push({ from, to, file, line });
+        }
+      }
+      if (name === "leave" && !insideScreens) {
+        if (stringLiteral((node.arguments as Node[])[0]) === null) {
+          problems.push({ file, line, message: "leave must name its screen as a string literal" });
         }
       }
       if (name !== null && UNDECLARED_CALLS.has(name) && !insideScreens) {

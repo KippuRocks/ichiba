@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { Offer, SeatOffer } from "./inventory.ts";
+import type { Offer, SeatOffer, StandingOffer } from "./inventory.ts";
 import { SaleLabel } from "./SaleLabel.tsx";
 
 /**
@@ -11,11 +11,14 @@ export function Inventory({
   offer,
   seller,
   seatLink,
+  buyForm,
 }: {
   offer: Offer;
   seller: string | null;
   /** A link to pick a seat in a seated zone with free seats. */
   seatLink: (zone: SeatOffer, children: ReactNode) => ReactNode;
+  /** A form to buy a ticket in an unseated zone. */
+  buyForm: (zone: StandingOffer) => ReactNode;
 }) {
   if (!offer.onSale) {
     return (
@@ -45,6 +48,16 @@ export function Inventory({
               <span className="inventory-availability" data-testid="class-availability">
                 {offered.availability}
               </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {offer.classes.length > 0 && offer.standing.length > 0 && (
+        <ul className="inventory-standing" aria-label="General admission">
+          {offer.standing.map((zone) => (
+            <li key={zone.zone}>
+              <span className="inventory-zone-name">{zone.name ?? "Unnamed zone"}</span>{" "}
+              {buyForm(zone)}
             </li>
           ))}
         </ul>

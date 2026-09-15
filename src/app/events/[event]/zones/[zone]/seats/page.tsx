@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
-import { seatChoice } from "../../../../../../events/inventory.ts";
+import { BuyForm } from "../../../../../../checkout/BuyForm.tsx";
+import { offerOf, seatChoice } from "../../../../../../events/inventory.ts";
 import { SeatPicker } from "../../../../../../events/SeatPicker.tsx";
 import { present, seatMapsOf } from "../../../../../../events/view.ts";
 import { Screen } from "../../../../../../screens/Screen.tsx";
 import { ScreenLink } from "../../../../../../screens/ScreenLink.tsx";
 import { readEvent, readInventory } from "../../../../../../server/events.ts";
+import { buySeat } from "../../../../../checkout/actions.ts";
 
 interface Props {
   readonly params: Promise<{ readonly event: string; readonly zone: string }>;
@@ -35,6 +37,10 @@ export default async function SeatsPage({ params, searchParams }: Props) {
   const inventory = presented.closed === null ? await readInventory(event) : null;
   const onSale = inventory?.zones.find((candidate) => candidate.id === zone);
   const { seat } = await searchParams;
+  const choice = seatChoice(
+    onSale?.kind === "Seated" ? onSale.freeSeats : [],
+    typeof seat === "string" ? seat : null,
+  );
   const zoneName = presented.zones.find((candidate) => candidate.id === zone)?.name ?? null;
 
   return (
@@ -52,7 +58,19 @@ export default async function SeatsPage({ params, searchParams }: Props) {
           zoneName={zoneName}
           seatMaps={seatMapsOf(presented, zone)}
           freeSeats={onSale.freeSeats}
-          choice={seatChoice(onSale.freeSeats, typeof seat === "string" ? seat : null)}
+          choice={choice}
+          buy={
+            choice.kind === "selected" ? (
+              <BuyForm
+                action={buySeat}
+                event={event}
+                zone={zone}
+                seat={choice.seat}
+                classes={offerOf(inventory, presented).classes}
+                label="Buy this seat"
+              />
+            ) : null
+          }
         />
       )}
     </Screen>

@@ -47,6 +47,34 @@ SDK: it reaches the ledger only through `kippu-api`.
   at that moment. A held, issued or non-canonical seat asked for is refused with
   a reason (`AC-B5.2`), and never selected. Selecting holds nothing: checkout
   does.
+- **Checkout** — `/checkout`, one URL whose screen follows the checkout's state in
+  kippu-api (`F-060` plan §5, as ruled in `M2`). Ichiba holds no keys and signs
+  nothing (`REQ-CL-4`).
+  1. **Start** — "Buy a ticket" (an unseated zone) or "Buy this seat" begins a
+     checkout (`sales.checkout.begin`). Its token goes into an `HttpOnly`,
+     `SameSite=Lax` cookie sent only to `/checkout`: the one cookie Ichiba sets,
+     and only here (browsing sets none, `REQ-MP-7`). The token is never put in a
+     URL, a link, or anything handed to Saifu or the payment provider.
+  2. **Account** — Ichiba hands off to Saifu (`AD-19` A, `AC-B4.1`): the link
+     `SAIFU_LINK_BASE/checkout#<handoff token>`, as a universal link for a phone
+     and as a QR code for a computer. The handoff token only links. The page
+     asks the server again until Saifu has linked an account, then shows the
+     6-digit pairing code Saifu shows too. The buyer confirms the codes match, or
+     discards the link, which hands Saifu a new token.
+  3. **Hold** — confirming places the hold. A refusal — sold out, class sold out,
+     or seat taken — is shown before any payment step (`AC-B4.4`).
+  4. **Payment** — "Pay with Bloque" redirects to the provider's hosted checkout
+     (`sales.checkout.pay`), card or PSE; no payment details pass through Ichiba.
+     The provider sends the buyer back to `ICHIBA_PUBLIC_URL/checkout`, with
+     `?returned=paid` or `?returned=cancelled`. A payment that did not go through
+     leaves the hold, so the buyer can pay again or cancel, which releases it with
+     no ticket and no charge (`AC-B4.3`).
+  5. **Confirmation** — once kippu-api has verified the payment and the ledger
+     recorded the ticket, the page says the ticket is in Saifu. A payment taken
+     with no ticket issued tells the buyer a refund can be claimed.
+- **Configuration** — `ICHIBA_PUBLIC_URL`, Ichiba's public origin (default
+  `http://localhost:3000`), and `SAIFU_LINK_BASE`, the https origin of Saifu's
+  links (placeholder `https://saifu.kippu.example`). No hostname is chosen yet.
 - **Copy** — no fee, gas, top-up, funding or balance language (`REQ-SP-1a`), and
   no trustless, tamper-proof or decentralised claims (`REQ-TM-2`).
   `pnpm lint:copy` checks every user-visible string in `src/`, on whole words.
@@ -143,11 +171,16 @@ types Ichiba compiles against.
 - **Login relying party** — `KIPPU_LOGIN_RP_ID` defaults to `localhost` and
   `KIPPU_LOGIN_ORIGINS` to `http://localhost:3000`, so tests can sign up the
   organisers whose events they browse. Ichiba itself signs nobody in.
+- **Payment provider** — kippu-api's deterministic test provider. The browser is
+  sent to its hosted page at `payments.test.invalid`, which Playwright stubs; the
+  buyer's outcome is set with kippu-api's test-only route
+  `POST /v0/testing/payments/:checkoutId`, which delivers the signed webhook.
 - **Saifu stand-in** — placing a hold needs a holder session, which Saifu opens
   by proving control of a credential registered on the ledger. The development
   wiring's ledger lives inside kippu-api's process, where no other process can
   register one, so `e2e/support/saifu.ts` writes a holder session straight into
-  the test API's store (`F-060` plan §7, "a Saifu handoff stub"). Test data only;
-  Ichiba itself never holds a holder session.
+  the test API's store (`F-060` plan §7, "a Saifu handoff stub"), and links
+  checkouts with it through `sales.checkout.link`, as Saifu's `checkout.link`
+  screen does. Test data only; Ichiba itself never holds a holder session.
 - **Port** — `KIPPU_API_PORT` moves the test API off `8080` when that port is in
   use locally; Playwright passes the matching `KIPPU_API_URL` to Ichiba.

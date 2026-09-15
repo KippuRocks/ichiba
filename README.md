@@ -31,6 +31,11 @@ SDK: it reaches the ledger only through `kippu-api`.
   page still describes the event from its ledger facts. A `Cancelled` or
   `Finished` event says so and offers nothing for sale. An address naming no
   event is the page-not-found screen, with status 404.
+- **Tickets** — an event page's tickets come from `sales.inventory`, read for
+  every request: each `Purchased` class, labelled "Primary sale · sold by" the
+  organiser (`REQ-MP-1`; resale labels will stand beside it), with how many are
+  left counting outstanding holds (`REQ-HD-3`), and each seated zone's free
+  seats. The count is a snapshot for display: the hold decides.
 - **Copy** — no fee, gas, top-up, funding or balance language (`REQ-SP-1a`), and
   no trustless, tamper-proof or decentralised claims (`REQ-TM-2`).
   `pnpm lint:copy` checks every user-visible string in `src/`, on whole words.
@@ -127,5 +132,11 @@ types Ichiba compiles against.
 - **Login relying party** — `KIPPU_LOGIN_RP_ID` defaults to `localhost` and
   `KIPPU_LOGIN_ORIGINS` to `http://localhost:3000`, so tests can sign up the
   organisers whose events they browse. Ichiba itself signs nobody in.
+- **Saifu stand-in** — placing a hold needs a holder session, which Saifu opens
+  by proving control of a credential registered on the ledger. The development
+  wiring's ledger lives inside kippu-api's process, where no other process can
+  register one, so `e2e/support/saifu.ts` writes a holder session straight into
+  the test API's store (`F-060` plan §7, "a Saifu handoff stub"). Test data only;
+  Ichiba itself never holds a holder session.
 - **Port** — `KIPPU_API_PORT` moves the test API off `8080` when that port is in
   use locally; Playwright passes the matching `KIPPU_API_URL` to Ichiba.

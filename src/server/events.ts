@@ -1,6 +1,6 @@
 import { TRPCClientError } from "@trpc/client";
 import { cache } from "react";
-import { type EventsOnSalePage, type EventView, kippu } from "./kippu.ts";
+import { type EventsOnSalePage, type EventView, kippu, type SaleInventory } from "./kippu.ts";
 
 const EVENT_ID = /^[0-9a-f]{64}$/;
 
@@ -30,6 +30,27 @@ export async function readEventsOnSale(page: string | null): Promise<EventsOnSal
     return await kippu().derived.events.onSale.query({ limit: INDEX_PAGE_SIZE, page });
   } catch (error) {
     if (page !== null && error instanceof TRPCClientError && error.data?.code === "BAD_REQUEST") {
+      return null;
+    }
+    throw error;
+  }
+}
+
+/**
+ * What Ichiba can offer of an event (`sales.inventory`): its `Purchased` classes,
+ * how many more can be held counting outstanding holds (`REQ-HD-3`), and each
+ * seated zone's free seats. Public: no session (`REQ-MP-7`). Read for every
+ * request and never cached, since it drops the moment a hold is placed. `null`
+ * when the ledger has no such event.
+ */
+export async function readInventory(event: string): Promise<SaleInventory | null> {
+  try {
+    return await kippu().sales.inventory.query({ event });
+  } catch (error) {
+    if (
+      error instanceof TRPCClientError &&
+      (error.data as { errorCode?: string } | undefined)?.errorCode === "ERR-EventNotFound"
+    ) {
       return null;
     }
     throw error;

@@ -35,6 +35,9 @@ export function Inventory({
           {offer.classes.map((offered) => (
             <li key={offered.id} data-sold-out={offered.soldOut}>
               <span className="inventory-class-name">{offered.name}</span>
+              <span className="inventory-price" data-testid="class-price">
+                {offered.price}
+              </span>
               <SaleLabel kind="primary" seller={seller} />
               {offered.description !== null && (
                 <span className="inventory-class-description">{offered.description}</span>

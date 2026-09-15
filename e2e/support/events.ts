@@ -4,12 +4,16 @@ import { createEvent, type SeededEvent, signUpOrganiser } from "./kippu";
 
 /**
  * An event with a seated and an unseated zone and a full public document, created
- * by a new organiser. With `onSale`, it also has a `Purchased` class.
+ * by a new organiser. With `onSale`, it also has a `Purchased` class priced
+ * 45,000.00 COPM; with `saleAsset`, its prices are in COPM.
  */
 export async function seedGala(
   browser: Browser,
   name = "Autumn Gala",
-  { onSale = true }: { readonly onSale?: boolean } = {},
+  {
+    onSale = true,
+    saleAsset = true,
+  }: { readonly onSale?: boolean; readonly saleAsset?: boolean } = {},
 ): Promise<SeededEvent> {
   const context = await browser.newContext();
   try {
@@ -22,7 +26,8 @@ export async function seedGala(
         { name: "Standing", kind: "Unseated" },
       ],
       capacity: 500,
-      ...(onSale ? { purchasedClass: "General" } : {}),
+      ...(onSale ? { purchasedClass: { name: "General", price: 4_500_000 } } : {}),
+      ...(saleAsset ? { saleAsset: "COPM/2" as const } : {}),
       grantedClass: "Press",
       document: (event, zones) => ({
         $schema: "https://meta.kippu.rocks/v0/schemas/event/1.0.json",

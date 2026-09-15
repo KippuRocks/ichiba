@@ -146,3 +146,7 @@ main {
   border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
   border-radius: 0.25rem;
 }
+
+.inventory-price {
+  font-variant-numeric: tabular-nums;
+}

@@ -1,4 +1,4 @@
-import type { AppRouter } from "@kippu/api";
+import type { AppRouter } from "@kippurocks/api";
 import { createTRPCClient, httpLink, type TRPCClient } from "@trpc/client";
 import type { inferRouterOutputs } from "@trpc/server";
 

@@ -17,6 +17,7 @@ function event(overrides: Partial<EventView> = {}): EventView {
     status: "Active",
     maxCapacity: 500,
     issued: 3,
+    passWindow: { windowMs: 60_000, isDefault: true },
     zones: [
       { id: STALLS, kind: "Seated" },
       { id: STANDING, kind: "Unseated" },

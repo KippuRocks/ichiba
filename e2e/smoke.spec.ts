@@ -11,7 +11,7 @@ test("the production build serves its home page to a visitor with no session or 
   expect(await context.cookies()).toEqual([]);
 });
 
-test("the server reaches the Kippu API through its @kippu/api client", async ({ request }) => {
+test("the server reaches the Kippu API through its @kippurocks/api client", async ({ request }) => {
   const response = await request.get("/health");
   expect(response.status()).toBe(200);
   expect(await response.json()).toEqual({ status: "ok", api: "ok" });

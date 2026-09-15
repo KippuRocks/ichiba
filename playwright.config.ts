@@ -8,7 +8,7 @@ const apiUrl = `http://127.0.0.1:${apiPort}`;
 
 /**
  * End-to-end tests drive Ichiba's production build, served by `next start`, in
- * Chromium, against the real kippu-api at the commit Ichiba's `@kippu/api` types
+ * Chromium, against the real kippu-api at the commit Ichiba's `@kippurocks/api` types
  * were vendored from (`tools/test-api.sh`).
  */
 export default defineConfig({

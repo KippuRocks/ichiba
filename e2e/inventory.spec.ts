@@ -18,6 +18,7 @@ test("REQ-HD-3: availability drops while a hold is open, and every class is labe
   await expect(general).toHaveCount(1);
   await expect(general).toContainText("General");
   await expect(general).toContainText("Primary sale · sold by Gala Productions");
+  await expect(general.getByTestId("class-price")).toHaveText("45,000.00 COPM");
   await expect(general.getByTestId("class-availability")).toHaveText("500 left");
   const stallsSeats = tickets.getByRole("list", { name: "Seats" }).getByRole("listitem");
   await expect(stallsSeats.getByTestId("zone-seats")).toHaveText("4 seats free");
@@ -54,4 +55,16 @@ test("an event with no Purchased class offers no tickets", async ({ browser, pag
   const tickets = page.getByRole("region", { name: "Tickets" });
   await expect(tickets).toContainText("No tickets are on sale for this event yet.");
   await expect(page.locator("[data-sale]")).toHaveCount(0);
+});
+
+test("an event with no sale asset chosen is not on sale, and shows no prices", async ({
+  browser,
+  page,
+}) => {
+  const { event } = await seedGala(browser, "Unpriced Matinee", { saleAsset: false });
+  await page.goto(`/events/${event}`);
+  const tickets = page.getByRole("region", { name: "Tickets" });
+  await expect(tickets).toContainText("Tickets are not on sale for this event.");
+  await expect(page.locator("[data-sale]")).toHaveCount(0);
+  await expect(page.getByTestId("class-price")).toHaveCount(0);
 });

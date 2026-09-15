@@ -33,9 +33,13 @@ SDK: it reaches the ledger only through `kippu-api`.
   event is the page-not-found screen, with status 404.
 - **Tickets** — an event page's tickets come from `sales.inventory`, read for
   every request: each `Purchased` class, labelled "Primary sale · sold by" the
-  organiser (`REQ-MP-1`; resale labels will stand beside it), with how many are
+  organiser (`REQ-MP-1`; resale labels will stand beside it), with its price in
+  the event's sale asset (`COPM/2` or `DUSD/6`), written with the asset's 2 or 6
+  decimal places from the integer minor units — never floating point — with how
+  many are
   left counting outstanding holds (`REQ-HD-3`), and each seated zone's free
-  seats. The count is a snapshot for display: the hold decides.
+  seats. The count is a snapshot for display: the hold decides. An event with no
+  sale asset chosen is not on sale, and shows no prices.
 - **Seats** — `/events/<event id>/zones/<zone id>/seats` picks a seat in a seated
   zone (`US-B5`): the organiser's seat maps from the event's document, and a
   choice among the zone's free seats only — canonical, neither issued nor held.

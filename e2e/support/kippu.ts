@@ -71,8 +71,10 @@ export async function createEvent(
   details: {
     readonly zones: readonly SeedZone[];
     readonly capacity?: number;
-    /** A `Purchased` class to define, which puts the event on sale; none by default. */
-    readonly purchasedClass?: string;
+    /** A `Purchased` class to define, with its price in minor units; none by default. */
+    readonly purchasedClass?: { readonly name: string; readonly price: number };
+    /** The event's sale asset; without one, nothing of the event is on sale. */
+    readonly saleAsset?: "COPM/2" | "DUSD/6";
     readonly document: (event: string, zones: SeededEvent["zones"]) => Record<string, unknown>;
     /** A `Granted` class to define, for tickets the organiser issues outside checkout; none by default. */
     readonly grantedClass?: string;
@@ -83,6 +85,7 @@ export async function createEvent(
   const created = await client.events.create.mutate({
     zones: zones.map(({ id, kind }) => ({ id, kind })),
     capacity: details.capacity ?? null,
+    saleAsset: details.saleAsset ?? null,
   });
   await client.metadata.events.put.mutate({
     event: created.event,
@@ -101,7 +104,8 @@ export async function createEvent(
   if (details.purchasedClass !== undefined) {
     const defined = await client.events.classes.define.mutate({
       event: created.event,
-      name: details.purchasedClass,
+      name: details.purchasedClass.name,
+      price: details.purchasedClass.price,
       description: null,
       provenance: "Purchased",
       policy: { kind: "Single" },

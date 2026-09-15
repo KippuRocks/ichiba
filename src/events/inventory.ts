@@ -1,4 +1,5 @@
 import type { SaleInventory } from "../server/kippu.ts";
+import { formatPrice } from "./price.ts";
 import type { EventPresentation } from "./view.ts";
 
 /** A class on sale, as the event page offers it. */
@@ -6,6 +7,8 @@ export interface ClassOffer {
   readonly id: string;
   readonly name: string;
   readonly description: string | null;
+  /** The price, written with the sale asset's precision. */
+  readonly price: string;
   /** What the page says of how many are left. */
   readonly availability: string;
   readonly soldOut: boolean;
@@ -41,7 +44,8 @@ function seatsOf(free: number): string {
 
 /** The offer an event page shows, from the sale inventory and the event's presentation. */
 export function offerOf(inventory: SaleInventory, event: EventPresentation): Offer {
-  if (!inventory.onSale || event.closed !== null) {
+  const asset = inventory.asset;
+  if (!inventory.onSale || asset === null || event.closed !== null) {
     return { onSale: false, classes: [], seats: [] };
   }
   const names = new Map(event.zones.map((zone) => [zone.id, zone.name]));
@@ -51,6 +55,7 @@ export function offerOf(inventory: SaleInventory, event: EventPresentation): Off
       id: offered.id,
       name: offered.name,
       description: offered.description,
+      price: formatPrice(offered.price, asset),
       availability: availabilityOf(offered.available),
       soldOut: offered.available !== null && offered.available <= 0,
     })),

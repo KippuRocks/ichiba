@@ -30,11 +30,13 @@ const event: EventPresentation = {
 const inventory: SaleInventory = {
   event: event.id,
   onSale: true,
+  asset: "COPM/2",
   available: 12,
   classes: [
     {
       id: "c1".repeat(32),
       name: "General",
+      price: 1250000,
       description: null,
       policy: { kind: "Single" },
       available: 12,
@@ -42,6 +44,7 @@ const inventory: SaleInventory = {
     {
       id: "c2".repeat(32),
       name: "Early bird",
+      price: 999,
       description: "The first ten.",
       policy: { kind: "Single" },
       available: 0,
@@ -49,6 +52,7 @@ const inventory: SaleInventory = {
     {
       id: "c3".repeat(32),
       name: "Open",
+      price: 5,
       description: null,
       policy: { kind: "Single" },
       available: null,
@@ -77,6 +81,11 @@ describe("the inventory an event page offers", () => {
     expect(html.match(/data-sale="primary"/g)).toHaveLength(3);
     expect(html).toContain("Primary sale · sold by Gala Productions");
     expect(html).toContain("12 left");
+    expect(html).toContain(
+      '<span class="inventory-price" data-testid="class-price">12,500.00 COPM</span>',
+    );
+    expect(html).toContain("9.99 COPM");
+    expect(html).toContain("0.05 COPM");
     expect(html).toContain("Sold out");
     expect(html).toContain('Stalls</span> <span data-testid="zone-seats">2 seats free');
     expect(
@@ -90,6 +99,7 @@ describe("the inventory an event page offers", () => {
     for (const offer of [
       offerOf({ ...inventory, onSale: false, classes: [], zones: [] }, event),
       offerOf(inventory, { ...event, status: "Cancelled", closed: "cancelled" }),
+      offerOf({ ...inventory, asset: null }, event),
     ]) {
       expect(offer).toEqual({ onSale: false, classes: [], seats: [] });
       const html = renderToStaticMarkup(<Inventory offer={offer} seller={null} seatLink={link} />);

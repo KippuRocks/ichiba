@@ -1,0 +1,44 @@
+{
+  "name": "ichiba",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Ichiba — the marketplace",
+  "license": "UNLICENSED",
+  "type": "module",
+  "packageManager": "pnpm@10.17.1",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "next dev --hostname localhost --port 3000",
+    "build": "next build",
+    "start": "next start --hostname localhost --port 3000",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome ci .",
+    "lint:copy": "node tools/copy-lint/cli.ts",
+    "format": "biome check --write .",
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "test-api": "tools/test-api.sh",
+    "vendor:kippu-api": "tools/vendor-kippu-api.sh",
+    "vendor:check": "tools/vendor-kippu-api.sh --check"
+  },
+  "dependencies": {
+    "@trpc/client": "11.18.0",
+    "@trpc/server": "11.18.0",
+    "next": "16.3.5",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.13",
+    "@kippu/api": "file:vendor/kippu-api/kippu-api-0.0.0.tgz",
+    "@playwright/test": "1.63.0",
+    "@types/node": "24.13.4",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "oxc-parser": "0.149.0",
+    "typescript": "7.0.2",
+    "vitest": "5.0.0"
+  }
+}

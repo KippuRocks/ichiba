@@ -16,6 +16,7 @@ function checkout(overrides: Partial<Checkout> = {}): Checkout {
     payment: null,
     sale: null,
     refund: null,
+    ticketVisible: false,
     createdAt: "2026-09-14T20:00:00.000Z",
     expiresAt: "2026-09-14T21:00:00.000Z",
     ...overrides,
@@ -88,30 +89,34 @@ describe("the checkout step", () => {
     const outstanding = { hold: hold("outstanding") };
     expect(
       stepOf(checkout({ ...outstanding, payment: payment("open") }), { returned: "paid" }),
-    ).toEqual({ kind: "processing" });
+    ).toEqual({ kind: "processing", stage: "issuing" });
     expect(stepOf(checkout({ ...outstanding, payment: payment("paid") }))).toEqual({
       kind: "processing",
+      stage: "issuing",
     });
     expect(stepOf(checkout({ hold: hold("issuing"), payment: payment("paid") }))).toEqual({
       kind: "processing",
+      stage: "issuing",
     });
     for (const status of ["issuing", "failed"] as const) {
       expect(
         stepOf(checkout({ hold: hold("issuing"), sale: { status, ticket: null, cursor: null } })),
-      ).toEqual({ kind: "processing" });
+      ).toEqual({ kind: "processing", stage: "issuing" });
     }
   });
 
-  it("confirms the ticket once the ledger recorded it", () => {
-    expect(
-      stepOf(
-        checkout({
-          hold: hold("confirmed"),
-          payment: payment("paid"),
-          sale: { status: "issued", ticket: "ee".repeat(32), cursor: "42" },
-        }),
-      ),
-    ).toEqual({ kind: "done", ticket: "ee".repeat(32), cursor: "42" });
+  it("AC-B4.1: confirms the ticket only once the ledger recorded it and Kippu's copy has it", () => {
+    const issued = {
+      hold: hold("confirmed"),
+      payment: payment("paid"),
+      sale: { status: "issued" as const, ticket: "ee".repeat(32), cursor: "42" },
+    };
+    expect(stepOf(checkout(issued))).toEqual({ kind: "processing", stage: "confirming" });
+    expect(stepOf(checkout({ ...issued, ticketVisible: true }))).toEqual({
+      kind: "done",
+      ticket: "ee".repeat(32),
+      cursor: "42",
+    });
   });
 
   it("tells a buyer who paid and got no ticket that a refund is owed", () => {

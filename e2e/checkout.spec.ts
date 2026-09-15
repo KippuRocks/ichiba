@@ -54,12 +54,10 @@ test("AC-B4.1: a buyer with no account completes checkout through Saifu, and the
   await expect(done).toBeVisible({ timeout: 20_000 });
   await expect(done.getByRole("heading", { name: "Your ticket is in Saifu" })).toBeVisible();
 
-  // The ticket is the buyer's, on the ledger as Kippu's copy reads it.
-  await expect
-    .poll(async () =>
-      (await holdings(buyer)).map(({ ticket }) => [ticket.event, ticket.provenance]),
-    )
-    .toEqual([[gala.event, "Purchased"]]);
+  // Ichiba says so only once Kippu's copy has the ticket, so Saifu already shows it.
+  expect((await holdings(buyer)).map(({ ticket }) => [ticket.event, ticket.provenance])).toEqual([
+    [gala.event, "Purchased"],
+  ]);
 });
 
 test("AC-B4.3: when payment fails, no ticket is issued and the hold is released", async ({

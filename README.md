@@ -70,7 +70,10 @@ SDK: it reaches the ledger only through `kippu-api`.
      leaves the hold, so the buyer can pay again or cancel, which releases it with
      no ticket and no charge (`AC-B4.3`).
   5. **Confirmation** — once kippu-api has verified the payment and the ledger
-     recorded the ticket, the page says the ticket is in Saifu. A payment taken
+     recorded the ticket, the page waits for Kippu's copy to have it
+     (`sales.checkout.get` answering `ticketVisible`, read with a bounded wait,
+     `NFR-11`), and only then says the ticket is in Saifu. A wait longer than 30
+     seconds says so, and the page keeps waiting. A payment taken
      with no ticket issued tells the buyer a refund is owed and will be claimable;
      claiming, with payout, arrives in `M4`, so there is no claim form yet.
 - **Configuration** — `ICHIBA_PUBLIC_URL`, Ichiba's public origin (default

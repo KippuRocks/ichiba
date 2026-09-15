@@ -42,12 +42,26 @@ export function transportCode(error: unknown): string | null {
     : null;
 }
 
-/** The checkout the buyer's cookie names; `null` with none, or when it expired or is unknown. */
+/**
+ * How long a read waits, once the sale is issued, for Kippu's copy to have the
+ * ticket (`ticketVisible`, `NFR-11`). Short enough that a waiting screen still
+ * re-renders often; the screen keeps asking until the copy has it.
+ */
+export const TICKET_VISIBLE_WAIT_MS = 4_000;
+
+/**
+ * The checkout the buyer's cookie names; `null` with none, or when it expired or
+ * is unknown. Once its sale is issued, the read waits a little for the ticket to
+ * be visible in Kippu's copy.
+ */
 export async function readCheckout(): Promise<Checkout | null> {
   const token = await checkoutToken();
   if (token === null) return null;
   try {
-    return await kippu().sales.checkout.get.query({ token });
+    return await kippu().sales.checkout.get.query({
+      token,
+      waitForTicketMs: TICKET_VISIBLE_WAIT_MS,
+    });
   } catch (error) {
     if (transportCode(error) === "NOT_FOUND") return null;
     throw error;

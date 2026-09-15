@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { connection } from "next/server";
 import QRCode from "qrcode";
 import { Handoff, PairingCode, Refusal, Summary } from "../../checkout/parts.tsx";
+import { SlowNotice } from "../../checkout/SlowNotice.tsx";
 import { type CheckoutStep, stepOf } from "../../checkout/steps.ts";
 import { minutesLeft, priceOf, summaryOf } from "../../checkout/summary.ts";
 import { present } from "../../events/view.ts";
@@ -19,6 +20,9 @@ export const metadata: Metadata = { title: "Checkout" };
 
 /** How often a waiting screen asks the server again. */
 const POLL_MS = 1500;
+
+/** How long a waiting screen waits before saying it is taking longer than usual. */
+const SLOW_AFTER_MS = 30_000;
 
 /**
  * The transitions the checkout page makes by rendering another step at the same
@@ -217,10 +221,31 @@ async function Step({ checkout, step }: { checkout: Checkout; step: CheckoutStep
       return (
         <Screen id="checkout.processing">
           <Refresh every={POLL_MS} />
-          <h1>Issuing your ticket</h1>
-          <p role="status">
-            We are confirming your payment and issuing your ticket. This page updates by itself.
-          </p>
+          {step.stage === "issuing" ? (
+            <>
+              <h1>Issuing your ticket</h1>
+              <p role="status">
+                We are confirming your payment and issuing your ticket. This page updates by itself.
+              </p>
+              <SlowNotice key="issuing" after={SLOW_AFTER_MS}>
+                This is taking longer than usual. Keep this page open: it updates as soon as your
+                payment is confirmed. If your payment was taken and no ticket can be issued, this
+                page will tell you.
+              </SlowNotice>
+            </>
+          ) : (
+            <>
+              <h1>Your ticket is issued</h1>
+              <p role="status" data-testid="ticket-confirming">
+                Your ticket has been issued. We are making sure it shows in Saifu. This page updates
+                by itself.
+              </p>
+              <SlowNotice key="confirming" after={SLOW_AFTER_MS}>
+                Saifu is taking longer than usual to show your ticket. It is yours, and it will
+                appear in Saifu shortly; you can close this page.
+              </SlowNotice>
+            </>
+          )}
           <Summary summary={summary} />
         </Screen>
       );

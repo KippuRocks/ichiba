@@ -19,9 +19,13 @@ export type CheckoutStep =
   | { readonly kind: "refused"; readonly reason: HoldRefusal }
   /** Held: the buyer pays on the provider's page. `notCompleted` after a payment that did not go through. */
   | { readonly kind: "pay"; readonly notCompleted: boolean }
-  /** Paid, or back from paying: waiting for the payment to be verified and the ticket issued. */
-  | { readonly kind: "processing" }
-  /** The ledger recorded the ticket. */
+  /**
+   * Paid, or back from paying: waiting for the payment to be verified and the
+   * ticket issued (`issuing`), or for Kippu's copy to have the issued ticket, so
+   * Saifu shows it (`confirming`, `NFR-11`).
+   */
+  | { readonly kind: "processing"; readonly stage: "issuing" | "confirming" }
+  /** The ledger recorded the ticket, and Kippu's copy has it: Saifu shows it. */
   | { readonly kind: "done"; readonly ticket: string | null; readonly cursor: string }
   /** Paid, but no ticket was issued: a refund is owed (`F-022` plan §5.5). */
   | {
@@ -38,16 +42,20 @@ export interface CheckoutQuery {
   readonly returned?: string | undefined;
 }
 
+const ISSUING: CheckoutStep = { kind: "processing", stage: "issuing" };
+
 /** The step a checkout is at. */
 export function stepOf(checkout: Checkout | null, query: CheckoutQuery = {}): CheckoutStep {
   if (checkout === null) return { kind: "none" };
   const { account, hold, payment, sale, refund } = checkout;
 
   if (refund !== null) return { kind: "refund", amount: refund.amount, asset: refund.asset };
-  if (sale?.status === "issued" && sale.cursor !== null) {
-    return { kind: "done", ticket: sale.ticket, cursor: sale.cursor };
+  if (sale?.status === "issued") {
+    return checkout.ticketVisible && sale.cursor !== null
+      ? { kind: "done", ticket: sale.ticket, cursor: sale.cursor }
+      : { kind: "processing", stage: "confirming" };
   }
-  if (sale !== null) return { kind: "processing" };
+  if (sale !== null) return ISSUING;
 
   if (account.state === "handoff") {
     return { kind: "handoff", handoffToken: account.handoff.handoffToken };
@@ -64,14 +72,14 @@ export function stepOf(checkout: Checkout | null, query: CheckoutQuery = {}): Ch
       return { kind: "ended" };
     case "issuing":
     case "confirmed":
-      return { kind: "processing" };
+      return ISSUING;
     case "outstanding":
       break;
   }
-  if (payment?.status === "paid") return { kind: "processing" };
+  if (payment?.status === "paid") return ISSUING;
   if (payment?.status === "cancelled" || payment?.status === "expired") {
     return { kind: "pay", notCompleted: true };
   }
-  if (query.returned === "paid" && payment?.status === "open") return { kind: "processing" };
+  if (query.returned === "paid" && payment?.status === "open") return ISSUING;
   return { kind: "pay", notCompleted: query.returned === "cancelled" };
 }

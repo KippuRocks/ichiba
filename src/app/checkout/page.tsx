@@ -246,8 +246,9 @@ async function Step({ checkout, step }: { checkout: Checkout; step: CheckoutStep
         <Screen id="checkout.refund">
           <h1>No ticket was issued</h1>
           <p role="alert">
-            Your payment went through, but your ticket could not be issued. You can claim a refund
-            of {amount ?? "the amount you paid"}. We ask where to send it only when you claim it.
+            Your payment went through, but your ticket could not be issued. A refund of{" "}
+            {amount ?? "the amount you paid"} is owed to you, and you will be able to claim it. We
+            will ask where to send it only when you claim it.
           </p>
           <Summary summary={summary} />
           <ScreenLink from="checkout.refund" to="home" params={{}}>

@@ -175,7 +175,7 @@ test("the codes don't match: the link is discarded and Saifu is handed a new tok
   await expect(page.locator(screen("checkout.pairing"))).toBeVisible();
 });
 
-test("paid but not issued: the buyer is told a refund can be claimed", async ({
+test("paid but not issued: the buyer is told a refund will be claimable", async ({
   browser,
   page,
 }) => {
@@ -193,7 +193,9 @@ test("paid but not issued: the buyer is told a refund can be claimed", async ({
 
   const refund = page.locator(screen("checkout.refund"));
   await expect(refund).toBeVisible({ timeout: 20_000 });
-  await expect(refund.getByRole("alert")).toContainText("You can claim a refund of 1.00 COPM");
+  await expect(refund.getByRole("alert")).toContainText(
+    "A refund of 1.00 COPM is owed to you, and you will be able to claim it.",
+  );
   expect(await holdings(buyer)).toEqual([]);
 });
 

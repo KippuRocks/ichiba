@@ -71,7 +71,8 @@ SDK: it reaches the ledger only through `kippu-api`.
      no ticket and no charge (`AC-B4.3`).
   5. **Confirmation** — once kippu-api has verified the payment and the ledger
      recorded the ticket, the page says the ticket is in Saifu. A payment taken
-     with no ticket issued tells the buyer a refund can be claimed.
+     with no ticket issued tells the buyer a refund is owed and will be claimable;
+     claiming, with payout, arrives in `M4`, so there is no claim form yet.
 - **Configuration** — `ICHIBA_PUBLIC_URL`, Ichiba's public origin (default
   `http://localhost:3000`), and `SAIFU_LINK_BASE`, the https origin of Saifu's
   links (placeholder `https://saifu.kippu.example`). No hostname is chosen yet.

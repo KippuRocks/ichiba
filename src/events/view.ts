@@ -10,6 +10,8 @@ export interface EventPresentation {
   readonly venue: { readonly name: string; readonly address: string | null } | null;
   readonly sessions: readonly { readonly name: string | null; readonly when: string }[];
   readonly image: { readonly url: string; readonly alt: string } | null;
+  /** The organiser's seat maps: images, each for the zones it names, or for every zone when it names none. */
+  readonly seatMaps: readonly { readonly url: string; readonly zones: readonly string[] | null }[];
   readonly zones: readonly {
     readonly id: string;
     readonly name: string | null;
@@ -62,6 +64,7 @@ export function present(event: EventView): EventPresentation {
   const imagery = field(document, "imagery");
   const firstImage = Array.isArray(imagery) ? imagery[0] : undefined;
   const zoneNames = field(document, "zones");
+  const seatMaps = field(document, "seatMaps");
   const venueName = text(field(venue, "name"));
   const addressLine = [
     field(address, "streetAddress"),
@@ -92,6 +95,19 @@ export function present(event: EventView): EventPresentation {
             url: field(firstImage, "url") as string,
             alt: text(field(firstImage, "alt")) ?? "",
           },
+    seatMaps: (Array.isArray(seatMaps) ? seatMaps : []).flatMap((map: unknown) => {
+      const url = text(field(map, "url"));
+      const zones = field(map, "zones");
+      if (url === null) return [];
+      return [
+        {
+          url,
+          zones: Array.isArray(zones)
+            ? zones.filter((zone): zone is string => typeof zone === "string")
+            : null,
+        },
+      ];
+    }),
     zones: event.zones.map((zone) => ({
       id: zone.id,
       name: text(field(field(zoneNames, zone.id), "name")),
@@ -101,4 +117,11 @@ export function present(event: EventView): EventPresentation {
     closed:
       event.status === "Cancelled" ? "cancelled" : event.status === "Finished" ? "finished" : null,
   };
+}
+
+/** The seat maps that show a zone. */
+export function seatMapsOf(event: EventPresentation, zone: string): readonly string[] {
+  return event.seatMaps
+    .filter((map) => map.zones === null || map.zones.includes(zone))
+    .map((map) => map.url);
 }

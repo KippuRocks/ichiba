@@ -1,4 +1,5 @@
-import type { Offer } from "./inventory.ts";
+import type { ReactNode } from "react";
+import type { Offer, SeatOffer } from "./inventory.ts";
 import { SaleLabel } from "./SaleLabel.tsx";
 
 /**
@@ -6,7 +7,16 @@ import { SaleLabel } from "./SaleLabel.tsx";
  * primary sale by the organiser (`REQ-MP-1`), with how many are left counting
  * outstanding holds (`REQ-HD-3`), and the free seats of each seated zone.
  */
-export function Inventory({ offer, seller }: { offer: Offer; seller: string | null }) {
+export function Inventory({
+  offer,
+  seller,
+  seatLink,
+}: {
+  offer: Offer;
+  seller: string | null;
+  /** A link to pick a seat in a seated zone with free seats. */
+  seatLink: (zone: SeatOffer, children: ReactNode) => ReactNode;
+}) {
   if (!offer.onSale) {
     return (
       <section aria-labelledby="tickets-heading" className="inventory">
@@ -42,6 +52,7 @@ export function Inventory({ offer, seller }: { offer: Offer; seller: string | nu
             <li key={zone.zone}>
               <span className="inventory-zone-name">{zone.name ?? "Unnamed zone"}</span>{" "}
               <span data-testid="zone-seats">{zone.availability}</span>
+              {zone.free && <> {seatLink(zone, "Choose a seat")}</>}
             </li>
           ))}
         </ul>

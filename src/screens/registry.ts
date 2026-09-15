@@ -37,6 +37,11 @@ export type ChromeId = keyof typeof CHROME;
 export const SCREENS = {
   home: { title: "Ichiba", route: "/", chrome: "site" },
   "event.detail": { title: "Event", route: "/events/:event", chrome: "site" },
+  "event.seats": {
+    title: "Choose a seat",
+    route: "/events/:event/zones/:zone/seats",
+    chrome: "site",
+  },
   "system.not-found": { title: "Page not found", route: null, chrome: "site" },
 } as const satisfies Readonly<Record<string, ScreenDefinition>>;
 

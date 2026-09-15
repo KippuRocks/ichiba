@@ -36,6 +36,13 @@ SDK: it reaches the ledger only through `kippu-api`.
   organiser (`REQ-MP-1`; resale labels will stand beside it), with how many are
   left counting outstanding holds (`REQ-HD-3`), and each seated zone's free
   seats. The count is a snapshot for display: the hold decides.
+- **Seats** — `/events/<event id>/zones/<zone id>/seats` picks a seat in a seated
+  zone (`US-B5`): the organiser's seat maps from the event's document, and a
+  choice among the zone's free seats only — canonical, neither issued nor held.
+  Choosing submits to the server, which checks the seat against the seats free
+  at that moment. A held, issued or non-canonical seat asked for is refused with
+  a reason (`AC-B5.2`), and never selected. Selecting holds nothing: checkout
+  does.
 - **Copy** — no fee, gas, top-up, funding or balance language (`REQ-SP-1a`), and
   no trustless, tamper-proof or decentralised claims (`REQ-TM-2`).
   `pnpm lint:copy` checks every user-visible string in `src/`, on whole words.

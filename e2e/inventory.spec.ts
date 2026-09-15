@@ -20,7 +20,7 @@ test("REQ-HD-3: availability drops while a hold is open, and every class is labe
   await expect(general).toContainText("Primary sale · sold by Gala Productions");
   await expect(general.getByTestId("class-availability")).toHaveText("500 left");
   const stallsSeats = tickets.getByRole("list", { name: "Seats" }).getByRole("listitem");
-  await expect(stallsSeats).toHaveText("Stalls 3 seats free");
+  await expect(stallsSeats.getByTestId("zone-seats")).toHaveText("4 seats free");
 
   // A buyer holds a standing place: one fewer can be held, while the hold is open.
   const buyer = await holderSession();
@@ -32,7 +32,7 @@ test("REQ-HD-3: availability drops while a hold is open, and every class is labe
   expect(standingHold.outcome).toBe("held");
   await page.reload();
   await expect(general.getByTestId("class-availability")).toHaveText("499 left");
-  await expect(stallsSeats).toHaveText("Stalls 3 seats free");
+  await expect(stallsSeats.getByTestId("zone-seats")).toHaveText("4 seats free");
 
   // Another holds a seat: a place and a seat fewer.
   const other = await holderSession();
@@ -45,7 +45,7 @@ test("REQ-HD-3: availability drops while a hold is open, and every class is labe
   expect(seatHold.outcome).toBe("held");
   await page.reload();
   await expect(general.getByTestId("class-availability")).toHaveText("498 left");
-  await expect(stallsSeats).toHaveText("Stalls 2 seats free");
+  await expect(stallsSeats.getByTestId("zone-seats")).toHaveText("3 seats free");
 });
 
 test("an event with no Purchased class offers no tickets", async ({ browser, page }) => {

@@ -11,6 +11,7 @@ const event: EventPresentation = {
   venue: { name: "Teatro Real", address: null },
   sessions: [{ name: null, when: "Thursday, 1 October 2026 at 20:00 CEST" }],
   image: null,
+  seatMaps: [],
   zones: [],
   status: "Active",
   closed: null,

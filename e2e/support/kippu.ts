@@ -63,6 +63,8 @@ export async function createEvent(
   details: {
     readonly zones: readonly SeedZone[];
     readonly capacity?: number;
+    /** A `Purchased` class to define, which puts the event on sale; none by default. */
+    readonly purchasedClass?: string;
     readonly document: (event: string, zones: SeededEvent["zones"]) => Record<string, unknown>;
   },
 ): Promise<SeededEvent> {
@@ -76,6 +78,17 @@ export async function createEvent(
     event: created.event,
     document: details.document(created.event, zones) as never,
   });
+  if (details.purchasedClass !== undefined) {
+    await client.events.classes.define.mutate({
+      event: created.event,
+      name: details.purchasedClass,
+      description: null,
+      provenance: "Purchased",
+      policy: { kind: "Single" },
+      restrictions: { cannotResale: false, cannotTransfer: false },
+      quota: null,
+    });
+  }
   const waited = await client.derived.waitFor.query({ cursor: created.cursor, timeout: 10_000 });
   if (!waited.reached) {
     throw new Error(`the derived copy did not reach ${created.cursor}`);

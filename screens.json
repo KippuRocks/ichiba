@@ -7,7 +7,9 @@
       "screenId": "home",
       "route": "/",
       "title": "Ichiba",
-      "navigatesTo": []
+      "navigatesTo": [
+        "event.detail"
+      ]
     },
     {
       "screenId": "event.detail",

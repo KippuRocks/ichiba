@@ -18,6 +18,11 @@ SDK: it reaches the ledger only through `kippu-api`.
 - **No session to browse** — pages carry no session and set no cookies
   (`REQ-MP-7`). An account is needed only at the point of purchase.
 - **No keys** — Ichiba holds no keys and signs nothing (`REQ-CL-4`).
+- **Home page** — `/` is the public index of events on sale, rendered on the
+  server for every request from `derived.events.onSale`: `Active` events with a
+  `Purchased` class, most recently created first, 20 to a page, each linking to
+  its event page. `?page=` carries the API's opaque token for the next page; a
+  token the API refuses is the page-not-found screen.
 - **Event pages** — `/events/<event id>` is rendered on the server for every
   request from `derived.events.get`: the event's ledger facts from Kippu's
   derived copy and its public document from the metadata origin, as one object

@@ -29,3 +29,6 @@ export type ApiOutputs = inferRouterOutputs<AppRouter>;
 
 /** An event, as one object of ledger facts and platform metadata (`AC-A3.2`). */
 export type EventView = NonNullable<ApiOutputs["derived"]["events"]["get"]["event"]>;
+
+/** A page of the public index of events on sale. */
+export type EventsOnSalePage = ApiOutputs["derived"]["events"]["onSale"];

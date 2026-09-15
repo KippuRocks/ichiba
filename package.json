@@ -16,6 +16,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "biome ci .",
     "lint:copy": "node tools/copy-lint/cli.ts",
+    "screens:write": "node tools/screens/cli.ts write",
+    "screens:check": "node tools/screens/cli.ts check",
     "format": "biome check --write .",
     "test": "vitest run",
     "e2e": "playwright test",

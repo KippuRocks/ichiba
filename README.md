@@ -24,6 +24,38 @@ SDK: it reaches the ledger only through `kippu-api`.
 - **Health** — `GET /health` answers `ok` while Ichiba's server can reach the
   Kippu API, and `503` otherwise.
 
+## Screens
+
+Every screen has a stable `screenId`, carried in the rendered tree as
+`data-screen`, and `screens.json` lists them all with their routes, titles and
+the screens each can navigate to (`F-070` plan §5.4, format `kippu.screens/1`).
+`kippu-e2e` merges it into the navigation map.
+
+- **The registry** in `src/screens/registry.ts` names each screen's id, title,
+  route and chrome. Routes are the app router's, with `:name` for a dynamic
+  segment: `src/app/events/[event]/page.tsx` is `/events/:event`. A route with
+  several steps declares one screen per step. Ids name what the screen is for,
+  as `area.subject.step`, never copy or indices, and are not renamed once used.
+- **Every screen renders inside `<Screen id>`**, with the id as a string literal,
+  in a file under `src/app/`. The route of that file is checked against the
+  registry, and every route renders at least one screen.
+- **Every navigation declares its edge**, naming both screens literally:
+  `<ScreenLink from to params>` for links, `navigate(from, to, params)` to
+  redirect from server code, and `transition(from, to)` where the screen changes
+  without the router — a step in a flow, or a handoff to Saifu, written
+  `saifu:<screenId>`. `from` may be a chrome, such as `chrome:site` for the site
+  header, whose edges belong to every screen inside it.
+- **`pnpm screens:write`** regenerates `screens.json`. **`pnpm screens:check`**
+  (CI) fails when it is out of date, when a route renders no screen id, when a
+  screen is rendered at a route the registry does not give it, when a navigation
+  names a screen non-literally or one the registry lacks, and when anything
+  navigates around the declarations: an `<a href>`, next/link's `<Link>`,
+  `redirect`, `useRouter`, `window.location`, or `hrefOf` outside `src/screens/`.
+- **`e2e/screens.spec.ts`** walks Ichiba through every screen in `screens.json`,
+  and fails if a step shows no `data-screen`, more than one, or one not in the
+  manifest; if a transition taken is not declared; or if any manifest screen is
+  never reached.
+
 ## Development
 
 Requires Node 24 or later, pnpm (the version is pinned in `package.json`), and
@@ -35,6 +67,7 @@ pnpm lint        # Biome
 pnpm lint:copy   # no fee vocabulary or trust claims in user-visible strings
 pnpm typecheck   # TypeScript, over the whole repository
 pnpm test        # Vitest
+pnpm screens:check  # screens.json matches the registry, the routes and the declared navigation
 pnpm build       # the production build, in .next/
 pnpm start       # serves the production build on http://localhost:3000
 pnpm test-api    # runs kippu-api on 127.0.0.1:8080 (see below)

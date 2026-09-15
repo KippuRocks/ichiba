@@ -48,6 +48,26 @@ jobs:
             fi
             cp "$RUNNER_TEMP/page.tsx" src/app/page.tsx
           done
+      # F-070 plan §5.4: every screen renders its screenId, every move between screens
+      # is declared, and screens.json is what the sources generate.
+      - name: The screen manifest is up to date, and every navigation declares its edge
+        run: pnpm screens:check
+      - name: A route without a screen id, or an out-of-date manifest, fails the screen check
+        run: |
+          mkdir -p src/app/probe
+          printf 'export default function Probe() {\n  return <main>probe</main>;\n}\n' > src/app/probe/page.tsx
+          if pnpm --silent screens:check; then
+            echo "the screen check accepted a route with no screen id" >&2
+            exit 1
+          fi
+          rm -r src/app/probe
+          cp screens.json "$RUNNER_TEMP/screens.json"
+          node -e 'const f="screens.json",m=JSON.parse(require("fs").readFileSync(f));m.screens.pop();require("fs").writeFileSync(f,JSON.stringify(m,null,2)+"\n")'
+          if pnpm --silent screens:check; then
+            echo "the screen check accepted an out-of-date screens.json" >&2
+            exit 1
+          fi
+          cp "$RUNNER_TEMP/screens.json" screens.json
       - run: pnpm build
 
   e2e:

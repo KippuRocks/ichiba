@@ -1,0 +1,21 @@
+{
+  "format": "kippu.screens/1",
+  "app": "ichiba",
+  "platform": "web",
+  "screens": [
+    {
+      "screenId": "home",
+      "route": "/",
+      "title": "Ichiba",
+      "navigatesTo": []
+    },
+    {
+      "screenId": "system.not-found",
+      "route": null,
+      "title": "Page not found",
+      "navigatesTo": [
+        "home"
+      ]
+    }
+  ]
+}

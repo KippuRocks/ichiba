@@ -11,7 +11,7 @@ tracked as one issue per feature per milestone.
 A Next.js app (`AD-03`), rendered on the server. Ichiba never embeds the Ticketto
 SDK: it reaches the ledger only through `kippu-api`.
 
-- **API** — the Kippu API's tRPC router (contract `C5`), typed by `@kippu/api`
+- **API** — the Kippu API's tRPC router (contract `C5`), typed by `@kippurocks/api`
   and called from the server only (`src/server/kippu.ts`). The browser never
   calls the API. `KIPPU_API_URL` says where it is, read at request time; the
   default is `http://127.0.0.1:8080`.
@@ -147,9 +147,9 @@ the test API. Where Ichiba will be hosted, and how it reaches `kippu-api` there,
 is a decision that has not been taken; nothing but `KIPPU_API_URL` should need to
 change.
 
-### `@kippu/api`
+### `@kippurocks/api`
 
-`@kippu/api` is not published to a registry. It is vendored as a `pnpm pack`
+`@kippurocks/api` is not published to a registry. It is vendored as a `pnpm pack`
 tarball from a pinned `kippu-api` commit (`vendor/kippu-api/`):
 `pnpm vendor:kippu-api <commit>` re-pins it, and `pnpm vendor:check` (run in CI)
 rebuilds it at the recorded commit and fails if it differs.

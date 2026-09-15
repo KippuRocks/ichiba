@@ -1,5 +1,5 @@
 import { randomBytes, randomUUID } from "node:crypto";
-import type { AppRouter } from "@kippu/api";
+import type { AppRouter } from "@kippurocks/api";
 import type { Page } from "@playwright/test";
 import { createTRPCClient, httpLink } from "@trpc/client";
 

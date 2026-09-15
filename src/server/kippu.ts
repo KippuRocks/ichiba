@@ -32,3 +32,6 @@ export type EventView = NonNullable<ApiOutputs["derived"]["events"]["get"]["even
 
 /** A page of the public index of events on sale. */
 export type EventsOnSalePage = ApiOutputs["derived"]["events"]["onSale"];
+
+/** What Ichiba can offer of an event: classes on sale, availability counting holds, free seats. */
+export type SaleInventory = ApiOutputs["sales"]["inventory"];

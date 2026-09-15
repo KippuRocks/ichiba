@@ -18,7 +18,7 @@ export async function seedGala(
     const token = await signUpOrganiser(page);
     return await createEvent(token, {
       zones: [
-        { name: "Stalls", kind: "Seated" },
+        { name: "Stalls", kind: "Seated", seats: ["A-1", "A-2", "A-3"] },
         { name: "Standing", kind: "Unseated" },
       ],
       capacity: 500,

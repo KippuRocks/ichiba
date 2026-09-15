@@ -47,11 +47,15 @@ export async function signUpOrganiser(page: Page): Promise<string> {
 export interface SeedZone {
   readonly name: string;
   readonly kind: "Seated" | "Unseated";
+  /** A seated zone's canonical seat positions. */
+  readonly seats?: readonly string[];
 }
 
 export interface SeededEvent {
   readonly event: string;
   readonly zones: readonly (SeedZone & { readonly id: string })[];
+  /** The `Purchased` class's id, when one was defined. */
+  readonly purchasedClass: string | null;
 }
 
 /**
@@ -78,8 +82,18 @@ export async function createEvent(
     event: created.event,
     document: details.document(created.event, zones) as never,
   });
+  for (const zone of zones) {
+    if (zone.seats !== undefined) {
+      await client.events.zones.addSeatPositions.mutate({
+        event: created.event,
+        zone: zone.id,
+        positions: [...zone.seats],
+      });
+    }
+  }
+  let purchasedClass: string | null = null;
   if (details.purchasedClass !== undefined) {
-    await client.events.classes.define.mutate({
+    const defined = await client.events.classes.define.mutate({
       event: created.event,
       name: details.purchasedClass,
       description: null,
@@ -88,10 +102,36 @@ export async function createEvent(
       restrictions: { cannotResale: false, cannotTransfer: false },
       quota: null,
     });
+    purchasedClass = defined.id;
   }
   const waited = await client.derived.waitFor.query({ cursor: created.cursor, timeout: 10_000 });
   if (!waited.reached) {
     throw new Error(`the derived copy did not reach ${created.cursor}`);
   }
-  return { event: created.event, zones };
+  return { event: created.event, zones, purchasedClass };
+}
+
+/**
+ * Places a hold the way checkout does (`sales.checkout.begin`, then `hold`), for a
+ * buyer whose holder session is `holderToken`: begun with the holder's session,
+ * the checkout is linked at once. Answers the hold's outcome.
+ */
+export async function placeHold(
+  holderToken: string,
+  input: {
+    readonly event: string;
+    readonly zone: string;
+    readonly class: string;
+    readonly seat?: string;
+  },
+) {
+  const client = api(holderToken);
+  const { token } = await client.sales.checkout.begin.mutate({
+    event: input.event,
+    zone: input.zone,
+    class: input.class,
+    placement:
+      input.seat === undefined ? { kind: "Unseated" } : { kind: "Seated", position: input.seat },
+  });
+  return client.sales.checkout.hold.mutate({ token });
 }

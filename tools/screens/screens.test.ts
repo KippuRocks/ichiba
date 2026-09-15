@@ -37,7 +37,8 @@ const APP = {
       : <Screen id="checkout.two" />;
     const next = transition("checkout.one", "checkout.two");
     const done = () => navigate("checkout.two", "event.detail", { event });
-    const handoff = transition("checkout.one", "saifu:checkout.link");
+    const handoff = <AppLink from="checkout.one" to="saifu:checkout.link" href={url}>Saifu</AppLink>;
+    const paying = () => leave("checkout.two", url);
   `,
 };
 
@@ -131,6 +132,8 @@ describe("the screen manifest", () => {
         redirect("/");
         const router = useRouter();
         const screen = <Screen id={which} />;
+        leave(here, url);
+        const app = <AppLink from={here} to="saifu:checkout.link" href={url}>Saifu</AppLink>;
       `,
     );
     expect(problems.map(({ line, message }) => `${line}: ${message.split(" ")[0]}`)).toEqual([
@@ -143,6 +146,8 @@ describe("the screen manifest", () => {
       "8: redirect",
       "9: useRouter",
       "10: Screen",
+      "11: leave",
+      "12: AppLink",
     ]);
   });
 

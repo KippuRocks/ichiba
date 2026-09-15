@@ -23,11 +23,18 @@ export interface SeatOffer {
   readonly free: boolean;
 }
 
+/** An unseated zone, where a ticket is bought with no seat. */
+export interface StandingOffer {
+  readonly zone: string;
+  readonly name: string | null;
+}
+
 export interface Offer {
   /** `false` when the event is not on sale: nothing is offered. */
   readonly onSale: boolean;
   readonly classes: readonly ClassOffer[];
   readonly seats: readonly SeatOffer[];
+  readonly standing: readonly StandingOffer[];
 }
 
 /** How many are left, counting outstanding holds (`REQ-HD-3`); `null` is unbounded. */
@@ -46,7 +53,7 @@ function seatsOf(free: number): string {
 export function offerOf(inventory: SaleInventory, event: EventPresentation): Offer {
   const asset = inventory.asset;
   if (!inventory.onSale || asset === null || event.closed !== null) {
-    return { onSale: false, classes: [], seats: [] };
+    return { onSale: false, classes: [], seats: [], standing: [] };
   }
   const names = new Map(event.zones.map((zone) => [zone.id, zone.name]));
   return {
@@ -70,6 +77,9 @@ export function offerOf(inventory: SaleInventory, event: EventPresentation): Off
             },
           ]
         : [],
+    ),
+    standing: inventory.zones.flatMap((zone) =>
+      zone.kind === "Unseated" ? [{ zone: zone.id, name: names.get(zone.id) ?? null }] : [],
     ),
   };
 }

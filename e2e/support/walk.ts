@@ -32,9 +32,18 @@ export class Walk {
     await this.on(screenId);
   }
 
-  async on(screenId: string): Promise<void> {
+  /**
+   * Goes to `url` within the flow, as the payment provider sends the buyer back:
+   * the change from the current screen must still be declared.
+   */
+  async arrive(url: string, screenId: string): Promise<void> {
+    await this.page.goto(url);
+    await this.on(screenId);
+  }
+
+  async on(screenId: string, options: { readonly timeout?: number } = {}): Promise<void> {
     expect(byId.get(screenId), `${screenId} is in screens.json`).toBeDefined();
-    await expect(this.page.locator(`[data-screen="${screenId}"]`)).toBeVisible();
+    await expect(this.page.locator(`[data-screen="${screenId}"]`)).toBeVisible(options);
     await expect(this.page.locator("[data-screen]")).toHaveCount(1);
     if (this.current !== null && this.current !== screenId) {
       expect(byId.get(this.current)?.navigatesTo, `${this.current} → ${screenId}`).toContain(

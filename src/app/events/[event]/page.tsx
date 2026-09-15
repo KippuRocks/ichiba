@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
+import { BuyForm } from "../../../checkout/BuyForm.tsx";
 import { EventDetails } from "../../../events/EventDetails.tsx";
 import { Inventory } from "../../../events/Inventory.tsx";
 import { offerOf } from "../../../events/inventory.ts";
@@ -8,6 +9,7 @@ import { present } from "../../../events/view.ts";
 import { Screen } from "../../../screens/Screen.tsx";
 import { ScreenLink } from "../../../screens/ScreenLink.tsx";
 import { readEvent, readInventory } from "../../../server/events.ts";
+import { buyTicket } from "../../checkout/actions.ts";
 
 interface Props {
   readonly params: Promise<{ readonly event: string }>;
@@ -32,17 +34,27 @@ export default async function EventPage({ params }: Props) {
   if (view === null) notFound();
   const presented = present(view);
   const inventory = presented.closed === null ? await readInventory(event) : null;
+  const offer = inventory === null ? null : offerOf(inventory, presented);
   return (
     <Screen id="event.detail">
       <EventDetails event={presented} />
-      {inventory !== null && (
+      {offer !== null && (
         <Inventory
-          offer={offerOf(inventory, presented)}
+          offer={offer}
           seller={presented.organiser}
           seatLink={(zone, children) => (
             <ScreenLink from="event.detail" to="event.seats" params={{ event, zone: zone.zone }}>
               {children}
             </ScreenLink>
+          )}
+          buyForm={(zone) => (
+            <BuyForm
+              action={buyTicket}
+              event={event}
+              zone={zone.zone}
+              classes={offer.classes}
+              label="Buy a ticket"
+            />
           )}
         />
       )}

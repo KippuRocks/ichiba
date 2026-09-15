@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { SeatChoice } from "./inventory.ts";
 
 /**
@@ -12,11 +13,14 @@ export function SeatPicker({
   seatMaps,
   freeSeats,
   choice,
+  buy = null,
 }: {
   zoneName: string | null;
   seatMaps: readonly string[];
   freeSeats: readonly string[];
   choice: SeatChoice;
+  /** How to buy the selected seat. */
+  buy?: ReactNode;
 }) {
   const zone = zoneName ?? "this zone";
   return (
@@ -39,6 +43,7 @@ export function SeatPicker({
           you only once checkout starts.
         </p>
       )}
+      {choice.kind === "selected" && buy}
       {freeSeats.length === 0 ? (
         <p>No seats are free in {zone}.</p>
       ) : (

@@ -3,7 +3,13 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import type { SaleInventory } from "../server/kippu.ts";
 import { Inventory } from "./Inventory.tsx";
-import { availabilityOf, offerOf, type SeatOffer, seatChoice } from "./inventory.ts";
+import {
+  availabilityOf,
+  offerOf,
+  type SeatOffer,
+  type StandingOffer,
+  seatChoice,
+} from "./inventory.ts";
 import { SeatPicker } from "./SeatPicker.tsx";
 import type { EventPresentation } from "./view.ts";
 
@@ -65,6 +71,11 @@ const inventory: SaleInventory = {
 };
 
 const link = (zone: SeatOffer, children: ReactNode) => <a href={`#${zone.zone}`}>{children}</a>;
+const buy = (zone: StandingOffer) => (
+  <button type="submit" value={zone.zone}>
+    Buy
+  </button>
+);
 
 describe("the inventory an event page offers", () => {
   it("REQ-HD-3: says how many are left, as the inventory counts them with holds", () => {
@@ -76,7 +87,12 @@ describe("the inventory an event page offers", () => {
 
   it("REQ-MP-1: labels every class for sale as a primary sale by the organiser", () => {
     const html = renderToStaticMarkup(
-      <Inventory offer={offerOf(inventory, event)} seller={event.organiser} seatLink={link} />,
+      <Inventory
+        offer={offerOf(inventory, event)}
+        seller={event.organiser}
+        seatLink={link}
+        buyForm={buy}
+      />,
     );
     expect(html.match(/data-sale="primary"/g)).toHaveLength(3);
     expect(html).toContain("Primary sale · sold by Gala Productions");
@@ -90,7 +106,7 @@ describe("the inventory an event page offers", () => {
     expect(html).toContain('Stalls</span> <span data-testid="zone-seats">2 seats free');
     expect(
       renderToStaticMarkup(
-        <Inventory offer={offerOf(inventory, event)} seller={null} seatLink={link} />,
+        <Inventory offer={offerOf(inventory, event)} seller={null} seatLink={link} buyForm={buy} />,
       ),
     ).toContain("Primary sale · sold by the organiser");
   });
@@ -101,8 +117,10 @@ describe("the inventory an event page offers", () => {
       offerOf(inventory, { ...event, status: "Cancelled", closed: "cancelled" }),
       offerOf({ ...inventory, asset: null }, event),
     ]) {
-      expect(offer).toEqual({ onSale: false, classes: [], seats: [] });
-      const html = renderToStaticMarkup(<Inventory offer={offer} seller={null} seatLink={link} />);
+      expect(offer).toEqual({ onSale: false, classes: [], seats: [], standing: [] });
+      const html = renderToStaticMarkup(
+        <Inventory offer={offer} seller={null} seatLink={link} buyForm={buy} />,
+      );
       expect(html).toContain("Tickets are not on sale for this event.");
       expect(html).not.toContain("data-sale");
     }

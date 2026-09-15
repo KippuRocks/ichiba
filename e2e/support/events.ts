@@ -2,8 +2,15 @@ import type { Browser } from "@playwright/test";
 import { addVirtualAuthenticator } from "./authenticator";
 import { createEvent, type SeededEvent, signUpOrganiser } from "./kippu";
 
-/** An event with a seated and an unseated zone and a full public document, created by a new organiser. */
-export async function seedGala(browser: Browser, name = "Autumn Gala"): Promise<SeededEvent> {
+/**
+ * An event with a seated and an unseated zone and a full public document, created
+ * by a new organiser. With `onSale`, it also has a `Purchased` class.
+ */
+export async function seedGala(
+  browser: Browser,
+  name = "Autumn Gala",
+  { onSale = true }: { readonly onSale?: boolean } = {},
+): Promise<SeededEvent> {
   const context = await browser.newContext();
   try {
     const page = await context.newPage();
@@ -15,6 +22,7 @@ export async function seedGala(browser: Browser, name = "Autumn Gala"): Promise<
         { name: "Standing", kind: "Unseated" },
       ],
       capacity: 500,
+      ...(onSale ? { purchasedClass: "General" } : {}),
       document: (event, zones) => ({
         $schema: "https://meta.kippu.rocks/v0/schemas/event/1.0.json",
         eventId: event,

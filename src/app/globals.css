@@ -24,3 +24,34 @@ main {
   margin: 0 auto;
   padding: 1rem;
 }
+
+.event-image {
+  width: 100%;
+  max-height: 20rem;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+.event-closed {
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  font-weight: 600;
+}
+
+.event-facts dt {
+  font-weight: 600;
+}
+
+.event-facts dd {
+  margin: 0 0 0.5rem;
+}
+
+.event-address {
+  display: block;
+  opacity: 0.8;
+}
+
+.zone-kind {
+  opacity: 0.7;
+}

@@ -18,6 +18,14 @@ SDK: it reaches the ledger only through `kippu-api`.
 - **No session to browse** — pages carry no session and set no cookies
   (`REQ-MP-7`). An account is needed only at the point of purchase.
 - **No keys** — Ichiba holds no keys and signs nothing (`REQ-CL-4`).
+- **Event pages** — `/events/<event id>` is rendered on the server for every
+  request from `derived.events.get`: the event's ledger facts from Kippu's
+  derived copy and its public document from the metadata origin, as one object
+  (`AC-A3.2`). Zone kinds and status are ledger facts; names, venue, schedule,
+  imagery and description come from the document. With no readable document the
+  page still describes the event from its ledger facts. A `Cancelled` or
+  `Finished` event says so and offers nothing for sale. An address naming no
+  event is the page-not-found screen, with status 404.
 - **Copy** — no fee, gas, top-up, funding or balance language (`REQ-SP-1a`), and
   no trustless, tamper-proof or decentralised claims (`REQ-TM-2`).
   `pnpm lint:copy` checks every user-visible string in `src/`, on whole words.

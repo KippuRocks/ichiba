@@ -53,6 +53,10 @@ export interface SeedZone {
 
 export interface SeededEvent {
   readonly event: string;
+  /** The organiser's session token. */
+  readonly organiser: string;
+  /** The `Granted` class's id, when one was defined. */
+  readonly grantedClass: string | null;
   readonly zones: readonly (SeedZone & { readonly id: string })[];
   /** The `Purchased` class's id, when one was defined. */
   readonly purchasedClass: string | null;
@@ -70,6 +74,8 @@ export async function createEvent(
     /** A `Purchased` class to define, which puts the event on sale; none by default. */
     readonly purchasedClass?: string;
     readonly document: (event: string, zones: SeededEvent["zones"]) => Record<string, unknown>;
+    /** A `Granted` class to define, for tickets the organiser issues outside checkout; none by default. */
+    readonly grantedClass?: string;
   },
 ): Promise<SeededEvent> {
   const client = api(token);
@@ -104,11 +110,24 @@ export async function createEvent(
     });
     purchasedClass = defined.id;
   }
+  let grantedClass: string | null = null;
+  if (details.grantedClass !== undefined) {
+    const defined = await client.events.classes.define.mutate({
+      event: created.event,
+      name: details.grantedClass,
+      description: null,
+      provenance: "Granted",
+      policy: { kind: "Single" },
+      restrictions: { cannotResale: false, cannotTransfer: false },
+      quota: null,
+    });
+    grantedClass = defined.id;
+  }
   const waited = await client.derived.waitFor.query({ cursor: created.cursor, timeout: 10_000 });
   if (!waited.reached) {
     throw new Error(`the derived copy did not reach ${created.cursor}`);
   }
-  return { event: created.event, zones, purchasedClass };
+  return { event: created.event, organiser: token, zones, purchasedClass, grantedClass };
 }
 
 /**
@@ -134,4 +153,27 @@ export async function placeHold(
       input.seat === undefined ? { kind: "Unseated" } : { kind: "Seated", position: input.seat },
   });
   return client.sales.checkout.hold.mutate({ token });
+}
+
+/**
+ * Issues a granted ticket for a seat through the organiser's authority, and
+ * waits until Kippu's derived copy reflects it: the seat is then taken.
+ */
+export async function issueGrantedSeat(
+  seeded: SeededEvent,
+  zone: string,
+  seat: string,
+): Promise<void> {
+  const client = api(seeded.organiser);
+  const issued = await client.events.tickets.issueGranted.mutate({
+    event: seeded.event,
+    class: seeded.grantedClass as string,
+    zone,
+    placement: { kind: "Seated", position: seat },
+    holder: randomBytes(32).toString("hex"),
+  });
+  const waited = await client.derived.waitFor.query({ cursor: issued.cursor, timeout: 10_000 });
+  if (!waited.reached) {
+    throw new Error(`the derived copy did not reach ${issued.cursor}`);
+  }
 }

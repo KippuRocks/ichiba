@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import type { EventView } from "../server/kippu.ts";
 import { EventDetails } from "./EventDetails.tsx";
-import { formatWhen, present } from "./view.ts";
+import { formatWhen, present, seatMapsOf } from "./view.ts";
 
 const ID = "ab".repeat(32);
 const STALLS = "01".repeat(32);
@@ -34,6 +34,10 @@ function event(overrides: Partial<EventView> = {}): EventView {
         sessions: [{ startsAt: "2026-10-01T20:00:00+02:00" }],
       },
       imagery: [{ url: "https://meta.kippu.rocks/v0/images/gala.webp", alt: "The stage" }],
+      seatMaps: [
+        { url: "https://meta.kippu.rocks/v0/images/stalls.png", zones: [STALLS] },
+        { url: "https://meta.kippu.rocks/v0/images/venue.png" },
+      ],
       zones: { [STALLS]: { name: "Stalls" } },
     },
     ...overrides,
@@ -51,6 +55,10 @@ describe("an event page", () => {
       venue: { name: "Teatro Real", address: "Madrid, ES" },
       sessions: [{ name: null, when: formatWhen("2026-10-01T20:00:00+02:00", "Europe/Madrid") }],
       image: { url: "https://meta.kippu.rocks/v0/images/gala.webp", alt: "The stage" },
+      seatMaps: [
+        { url: "https://meta.kippu.rocks/v0/images/stalls.png", zones: [STALLS] },
+        { url: "https://meta.kippu.rocks/v0/images/venue.png", zones: null },
+      ],
       zones: [
         { id: STALLS, name: "Stalls", kind: "Seated" },
         { id: STANDING, name: null, kind: "Unseated" },
@@ -62,6 +70,17 @@ describe("an event page", () => {
     expect(html).toContain("<h1>Autumn Gala</h1>");
     expect(html).toContain("Teatro Real");
     expect(html).not.toContain('data-testid="event-closed"');
+  });
+
+  it("finds the seat maps that show a zone", () => {
+    const presented = present(event());
+    expect(seatMapsOf(presented, STALLS)).toEqual([
+      "https://meta.kippu.rocks/v0/images/stalls.png",
+      "https://meta.kippu.rocks/v0/images/venue.png",
+    ]);
+    expect(seatMapsOf(presented, STANDING)).toEqual([
+      "https://meta.kippu.rocks/v0/images/venue.png",
+    ]);
   });
 
   it("shows a session's start in the event's time zone", () => {

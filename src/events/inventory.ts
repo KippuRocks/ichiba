@@ -16,6 +16,8 @@ export interface SeatOffer {
   readonly zone: string;
   readonly name: string | null;
   readonly availability: string;
+  /** Whether any seat can be picked. */
+  readonly free: boolean;
 }
 
 export interface Offer {
@@ -59,9 +61,29 @@ export function offerOf(inventory: SaleInventory, event: EventPresentation): Off
               zone: zone.id,
               name: names.get(zone.id) ?? null,
               availability: seatsOf(zone.freeSeats.length),
+              free: zone.freeSeats.length > 0,
             },
           ]
         : [],
     ),
   };
+}
+
+/** What picking a seat in a zone can come to (`US-B5`, `AC-B5.2`). */
+export type SeatChoice =
+  | { readonly kind: "none" }
+  | { readonly kind: "selected"; readonly seat: string }
+  | { readonly kind: "unavailable"; readonly seat: string };
+
+/**
+ * Checks a picked seat against the zone's free seats — canonical, neither issued
+ * nor held — as the inventory reads them now. Only a free seat is selected; any
+ * other, taken or held since the page was shown, or never a seat of the zone, is
+ * refused with a reason the buyer can act on. The hold still decides (`AC-B4.4`).
+ */
+export function seatChoice(freeSeats: readonly string[], picked: string | null): SeatChoice {
+  if (picked === null || picked === "") return { kind: "none" };
+  return freeSeats.includes(picked)
+    ? { kind: "selected", seat: picked }
+    : { kind: "unavailable", seat: picked };
 }

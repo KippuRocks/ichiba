@@ -114,3 +114,35 @@ main {
 .inventory-availability {
   font-weight: 600;
 }
+
+.seat-map {
+  max-width: 100%;
+  border-radius: 0.5rem;
+}
+
+.seat-refused {
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, #d00 15%, transparent);
+}
+
+.seat-form fieldset {
+  border: 0;
+  padding: 0;
+}
+
+.seat-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block: 0.5rem 1rem;
+}
+
+.seat-option {
+  display: inline-flex;
+  gap: 0.25rem;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  border-radius: 0.25rem;
+}

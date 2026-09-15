@@ -6,6 +6,7 @@ import { Inventory } from "../../../events/Inventory.tsx";
 import { offerOf } from "../../../events/inventory.ts";
 import { present } from "../../../events/view.ts";
 import { Screen } from "../../../screens/Screen.tsx";
+import { ScreenLink } from "../../../screens/ScreenLink.tsx";
 import { readEvent, readInventory } from "../../../server/events.ts";
 
 interface Props {
@@ -35,7 +36,15 @@ export default async function EventPage({ params }: Props) {
     <Screen id="event.detail">
       <EventDetails event={presented} />
       {inventory !== null && (
-        <Inventory offer={offerOf(inventory, presented)} seller={presented.organiser} />
+        <Inventory
+          offer={offerOf(inventory, presented)}
+          seller={presented.organiser}
+          seatLink={(zone, children) => (
+            <ScreenLink from="event.detail" to="event.seats" params={{ event, zone: zone.zone }}>
+              {children}
+            </ScreenLink>
+          )}
+        />
       )}
     </Screen>
   );

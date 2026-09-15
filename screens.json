@@ -16,6 +16,16 @@
       "route": "/events/:event",
       "title": "Event",
       "navigatesTo": [
+        "event.seats",
+        "home"
+      ]
+    },
+    {
+      "screenId": "event.seats",
+      "route": "/events/:event/zones/:zone/seats",
+      "title": "Choose a seat",
+      "navigatesTo": [
+        "event.detail",
         "home"
       ]
     },

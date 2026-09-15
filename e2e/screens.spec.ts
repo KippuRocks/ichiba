@@ -21,6 +21,15 @@ test("every screen in screens.json renders its data-screen id, reached along dec
   await page.getByRole("link", { name: "Ichiba" }).click();
   await walk.on("home");
   await walk.enter(`/events/${event}`, "event.detail");
+  await page.getByRole("link", { name: "Choose a seat" }).click();
+  await walk.on("event.seats");
+  await page.getByRole("link", { name: /^Back to / }).click();
+  await walk.on("event.detail");
+  await page.getByRole("link", { name: "Choose a seat" }).click();
+  await walk.on("event.seats");
+  await page.getByRole("link", { name: "Ichiba" }).click();
+  await walk.on("home");
+  await walk.enter(`/events/${event}`, "event.detail");
   await page.getByRole("link", { name: "Ichiba" }).click();
   await walk.on("home");
 

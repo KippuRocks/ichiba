@@ -1,5 +1,6 @@
 import type { AppRouter } from "@kippu/api";
 import { createTRPCClient, httpLink, type TRPCClient } from "@trpc/client";
+import type { inferRouterOutputs } from "@trpc/server";
 
 /**
  * Where Ichiba's server reaches the Kippu API's tRPC router (`C5`). The browser
@@ -22,3 +23,9 @@ export function kippu(): KippuClient {
     links: [httpLink({ url: `${apiUrl()}/v0/trpc` })],
   });
 }
+
+/** What the Kippu API's procedures answer. */
+export type ApiOutputs = inferRouterOutputs<AppRouter>;
+
+/** An event, as one object of ledger facts and platform metadata (`AC-A3.2`). */
+export type EventView = NonNullable<ApiOutputs["derived"]["events"]["get"]["event"]>;

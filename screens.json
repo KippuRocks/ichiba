@@ -10,6 +10,14 @@
       "navigatesTo": []
     },
     {
+      "screenId": "event.detail",
+      "route": "/events/:event",
+      "title": "Event",
+      "navigatesTo": [
+        "home"
+      ]
+    },
+    {
       "screenId": "system.not-found",
       "route": null,
       "title": "Page not found",
